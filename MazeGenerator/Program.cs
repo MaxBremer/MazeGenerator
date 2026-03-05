@@ -11,10 +11,11 @@ internal class Program
         var height = ParseArgument(args, 1, DefaultHeight);
 
         var maze = new Maze(width, height);
-        MazeBuilders.BuildSnakePassage(maze);
+        MazeBuilders.Prim(maze);
 
         Console.WriteLine($"Maze ({width} x {height})");
         Console.WriteLine(MazeAsciiRenderer.Render(maze));
+        DebugPrints.PrintStartAndEndLocs(maze);
     }
 
     private static int ParseArgument(string[] args, int index, int defaultValue)

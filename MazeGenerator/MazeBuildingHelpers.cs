@@ -83,7 +83,7 @@ namespace MazeGenerator
         {
             return mode switch
             {
-                TreeGrowingMode.NewestCell or TreeGrowingMode.HorizontalBias or TreeGrowingMode.VerticalBias => frontierCount - 1,
+                TreeGrowingMode.NewestCell => frontierCount - 1,
                 TreeGrowingMode.OldestCell => 0,
                 _ => Random.Shared.Next(frontierCount)
             };

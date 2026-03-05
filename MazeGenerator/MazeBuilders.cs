@@ -19,6 +19,12 @@ internal static class MazeBuilders
     
     public const TreeGrowingMode DefaultMode = TreeGrowingMode.VerticalBias;
 
+    //defs:
+    //Fully connected: There is a path between any two cells in the maze. No isolated sections.
+    //Branching: At least one cell that has connections in 3 or more directions. A maze with no branching is essentially just a single long corridor snaking around.
+    //Perfect: A maze that is both fully connected and has no loops. Exactly one path between any two cells. 
+    //Braided: Branching with no dead-ends.
+
     //Snakes back and forth till the end. Fully connected.
     public static void BuildSnakePassage(Maze m)
     {
@@ -39,6 +45,7 @@ internal static class MazeBuilders
         MazeBuildingHelpers.SetStandardExits(m);
     }
 
+    //Simulates individual traversal, basically depth-first-search.
     public static void RecursiveBacktracking(Maze m)
     {
         List<Cell> visited = new();
@@ -70,6 +77,10 @@ internal static class MazeBuilders
 
     }
 
+    //Usually used with weighted edges.
+    //Kruskals is a minimum spanning tree algorithm. Each cell is its own group; randomly select an edge and if it connects two different groups, connect it and merge the groups.
+    //Repeat until all cells are in the same group.
+    //Perfect, branching. Minimum spanning tree.
     public static void KruskalGeneration(Maze m)
     {
         MazeBuildingHelpers.SetRandomExitsVertical(m);
@@ -99,7 +110,12 @@ internal static class MazeBuilders
 
         }
     }
-  
+
+
+    //Prim's is a minimum spanning tree algorithm.
+    //Start with a random cell and add it to the maze.
+    //Add all of its edges to a frontier list.
+    //Randomly select an edge from the frontier; if it connects a cell in the maze to a cell outside the maze, connect it and add the new cell's edges to the frontier. Repeat until the frontier is empty.
     public static void Prim(Maze m)
     {
         MazeBuildingHelpers.SetRandomExitsVertical(m);
@@ -136,6 +152,9 @@ internal static class MazeBuilders
         }
     }
 
+    //Tree growing is a generalization of Prim's algorithm.
+    //Instead of randomly selecting from the frontier, you can apply different strategies to select the next cell/edge.
+    //Technically don't need Prims: this on Random mode == Prims.
     public static void TreeGrowing(Maze m, TreeGrowingMode mode = DefaultMode)
     {
         MazeBuildingHelpers.SetRandomExitsVertical(m);

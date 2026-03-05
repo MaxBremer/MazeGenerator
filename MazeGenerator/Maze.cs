@@ -85,6 +85,12 @@ internal sealed class Maze
 
         cell.Open(direction);
         neighbor.Open(direction.Opposite());
+
+
+        if (Program.ANIMATE)
+        {
+            Program.DrawFrame();
+        }
     }
 
     //override that gets direction using method

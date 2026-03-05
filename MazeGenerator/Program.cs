@@ -2,8 +2,13 @@ namespace MazeGenerator;
 
 internal class Program
 {
+    public const bool ANIMATE = false;
+    public const int ANIMATION_DELAY = 50;
+
     private const int DefaultWidth = 8;
-    private const int DefaultHeight = 4;
+    private const int DefaultHeight = 6;
+
+    private static Maze MyMaze;
 
     static void Main(string[] args)
     {
@@ -11,11 +16,29 @@ internal class Program
         var height = ParseArgument(args, 1, DefaultHeight);
 
         var maze = new Maze(width, height);
-        MazeBuilders.TreeGrowing(maze, TreeGrowingMode.SouthMode);
+        MyMaze = maze;
+        if (ANIMATE)
+        {
+            RedrawMaze();
+        }
+        //MazeBuilders.TreeGrowing(maze, TreeGrowingMode.VerticalBias);
+        MazeBuilders.RecursiveBacktracking(maze);
 
         Console.WriteLine($"Maze ({width} x {height})");
         Console.WriteLine(MazeAsciiRenderer.Render(maze));
         DebugPrints.PrintStartAndEndLocs(maze);
+    }
+
+    public static void RedrawMaze()
+    {
+        Console.WriteLine(MazeAsciiRenderer.Render(MyMaze));
+    }
+
+    public static void DrawFrame()
+    {
+        Console.Clear();
+        RedrawMaze();
+        Thread.Sleep(ANIMATION_DELAY);
     }
 
     private static int ParseArgument(string[] args, int index, int defaultValue)

@@ -11,14 +11,17 @@ internal static class MazeAsciiRenderer
         output.Append('+');
         for (var x = 0; x < maze.Width; x++)
         {
-            output.Append("---+");
+            var topCell = maze.GetCell(x, 0);
+            output.Append(topCell.IsConnected(Direction.North) ? "   " : "---");
+            output.Append('+');
         }
 
         output.AppendLine();
 
         for (var y = 0; y < maze.Height; y++)
         {
-            var middleLine = new StringBuilder("|");
+            var firstCell = maze.GetCell(0, y);
+            var middleLine = new StringBuilder(firstCell.IsConnected(Direction.West) ? " " : "|");
             var bottomLine = new StringBuilder("+");
 
             for (var x = 0; x < maze.Width; x++)

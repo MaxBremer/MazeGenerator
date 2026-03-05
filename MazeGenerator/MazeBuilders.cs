@@ -189,6 +189,7 @@ internal static class MazeBuilders
     public static void RemoveDeadEnds(Maze m)
     {
         var deadEnds = MazeBuildingHelpers.FindDeadEnds(m);
+        
         foreach (var cell in deadEnds)
         {
             var dirOpts = Enum.GetValues<Direction>().Where(dir => m.CanConnect(cell.X, cell.Y, dir) && !cell.IsConnected(dir)).ToList();

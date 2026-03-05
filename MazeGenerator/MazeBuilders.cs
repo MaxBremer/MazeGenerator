@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-
 namespace MazeGenerator;
 
 internal static class MazeBuilders
@@ -93,7 +91,7 @@ internal static class MazeBuilders
         Cell startingCell = m.GetRandomCell();
         frontier.Add(startingCell);
 
-        List<Cell> origins = new() { startingCell };
+        Dictionary<Cell, Cell> origins = new();
 
         List<Cell> visited = new();
 
@@ -107,16 +105,16 @@ internal static class MazeBuilders
                 if(!visited.Contains(cell) && !frontier.Contains(cell))
                 {
                     frontier.Add(cell);
-                    origins.Add(target);
+                    origins[cell] = target;
                 }
             }
 
-            if(target != startingCell)
+            if(origins.TryGetValue(target, out var origin))
             {
-                m.Connect(target, origins[targetIndex]);
+                m.Connect(target, origin);
             }
 
-            frontier.Remove(target);
+            frontier.RemoveAt(targetIndex);
             origins.Remove(target);
             visited.Add(target);
         }

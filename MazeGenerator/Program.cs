@@ -11,7 +11,7 @@ internal class Program
         var height = ParseArgument(args, 1, DefaultHeight);
 
         var maze = new Maze(width, height);
-        BuildDemoPassages(maze);
+        MazeBuilders.BuildSnakePassage(maze);
 
         Console.WriteLine($"Maze ({width} x {height})");
         Console.WriteLine(MazeAsciiRenderer.Render(maze));
@@ -22,25 +22,5 @@ internal class Program
         return args.Length > index && int.TryParse(args[index], out var value) && value > 0
             ? value
             : defaultValue;
-    }
-
-    private static void BuildDemoPassages(Maze maze)
-    {
-        for (var y = 0; y < maze.Height; y++)
-        {
-            for (var x = 0; x < maze.Width - 1; x++)
-            {
-                if (y % 2 == 0)
-                {
-                    maze.Connect(x, y, Direction.East);
-                }
-            }
-
-            if (y < maze.Height - 1)
-            {
-                var connectorColumn = y % 2 == 0 ? maze.Width - 1 : 0;
-                maze.Connect(connectorColumn, y, Direction.South);
-            }
-        }
     }
 }

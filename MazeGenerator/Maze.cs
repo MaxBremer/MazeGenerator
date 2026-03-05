@@ -4,6 +4,8 @@ internal sealed class Maze
 {
     private readonly Cell[,] _cells;
 
+    public static bool Do_Animation;
+
     public int Width { get; }
     public int Height { get; }
     public MazeBoundaryOpening? Start { get; private set; }
@@ -87,7 +89,7 @@ internal sealed class Maze
         neighbor.Open(direction.Opposite());
 
 
-        if (Program.ANIMATE)
+        if (Do_Animation)
         {
             Program.DrawFrame();
         }

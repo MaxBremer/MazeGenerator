@@ -2,8 +2,8 @@ namespace MazeGenerator;
 
 internal class Program
 {
-    public const bool DefaultAnimate = false;
-    public const int ANIMATION_DELAY = 50;
+    public const bool DefaultAnimate = true;
+    public const int ANIMATION_DELAY = 150;
 
     private const bool DefaultRemoveDeadEnds = true;
 
@@ -34,6 +34,7 @@ internal class Program
 
         var maze = new Maze(width, height);
         MyMaze = maze;
+        Maze.Do_Animation = animate;
         if (animate)
         {
             RedrawMaze();
@@ -46,6 +47,7 @@ internal class Program
             MazeBuilders.RemoveDeadEnds(maze);
         }
 
+        Console.Clear();
         Console.WriteLine($"Maze ({width} x {height})");
         Console.WriteLine(MazeAsciiRenderer.Render(maze));
         DebugPrints.PrintStartAndEndLocs(maze);

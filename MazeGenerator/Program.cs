@@ -2,8 +2,8 @@ namespace MazeGenerator;
 
 internal class Program
 {
-    private const int DefaultWidth = 25;
-    private const int DefaultHeight = 15;
+    private const int DefaultWidth = 8;
+    private const int DefaultHeight = 4;
 
     static void Main(string[] args)
     {

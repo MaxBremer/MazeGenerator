@@ -185,4 +185,14 @@ internal static class MazeBuilders
             frontier.Add(next);
         }
     }
+
+    public static void RemoveDeadEnds(Maze m)
+    {
+        var deadEnds = MazeBuildingHelpers.FindDeadEnds(m);
+        foreach (var cell in deadEnds)
+        {
+            var dirOpts = Enum.GetValues<Direction>().Where(dir => m.CanConnect(cell.X, cell.Y, dir) && !cell.IsConnected(dir)).ToList();
+            m.Connect(cell.X, cell.Y, dirOpts[Random.Shared.Next(dirOpts.Count)]); 
+        }
+    }
 }

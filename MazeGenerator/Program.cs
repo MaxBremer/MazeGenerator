@@ -5,6 +5,8 @@ internal class Program
     public const bool ANIMATE = false;
     public const int ANIMATION_DELAY = 50;
 
+    private const bool REMOVE_DEAD_ENDS = true;
+
     private const int DefaultWidth = 8;
     private const int DefaultHeight = 6;
 
@@ -23,6 +25,11 @@ internal class Program
         }
         //MazeBuilders.TreeGrowing(maze, TreeGrowingMode.VerticalBias);
         MazeBuilders.RecursiveBacktracking(maze);
+
+        if (REMOVE_DEAD_ENDS)
+        {
+            MazeBuilders.RemoveDeadEnds(maze);
+        }
 
         Console.WriteLine($"Maze ({width} x {height})");
         Console.WriteLine(MazeAsciiRenderer.Render(maze));

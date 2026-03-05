@@ -173,5 +173,26 @@ namespace MazeGenerator
                 return weight;
             };
         }
+
+        internal static List<Cell> FindDeadEnds(Maze m)
+        {
+            List<Cell> deadEnds = new();
+            foreach (var cell in m.GetAllCells())
+            {
+                var connections = 0;
+                foreach (var dir in Enum.GetValues<Direction>())
+                {
+                    if (cell.IsConnected(dir))
+                    {
+                        connections++;
+                    }
+                }
+                if (connections == 1)
+                {
+                    deadEnds.Add(cell);
+                }
+            }
+            return deadEnds;
+        }
     }
 }

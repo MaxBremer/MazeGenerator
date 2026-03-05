@@ -6,6 +6,8 @@ internal sealed class Maze
 
     public int Width { get; }
     public int Height { get; }
+    public MazeBoundaryOpening? Start { get; private set; }
+    public MazeBoundaryOpening? End { get; private set; }
 
     public Maze(int width, int height)
     {
@@ -63,5 +65,35 @@ internal sealed class Maze
         neighbor.Open(direction.Opposite());
     }
 
+    public void SetStart(int x, int y, Direction direction)
+    {
+        Start = OpenBoundary(x, y, direction);
+    }
+
+    public void SetEnd(int x, int y, Direction direction)
+    {
+        End = OpenBoundary(x, y, direction);
+    }
+
+    private MazeBoundaryOpening OpenBoundary(int x, int y, Direction direction)
+    {
+        if (!IsInBounds(x, y))
+        {
+            throw new ArgumentOutOfRangeException(nameof(x), $"Coordinates ({x}, {y}) are outside the maze bounds.");
+        }
+
+        if (CanConnect(x, y, direction))
+        {
+            throw new InvalidOperationException($"Cell ({x}, {y}) toward {direction} is not a boundary opening.");
+        }
+
+        var cell = GetCell(x, y);
+        cell.Open(direction);
+
+        return new MazeBoundaryOpening(x, y, direction);
+    }
+
     private bool IsInBounds(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height;
 }
+
+internal readonly record struct MazeBoundaryOpening(int X, int Y, Direction Direction);

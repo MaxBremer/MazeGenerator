@@ -1,8 +1,24 @@
 namespace MazeGenerator;
 
+
+internal enum TreeGrowingMode
+{
+    RandomCell,
+    NewestCell,
+    OldestCell,
+    HorizontalBias,
+    VerticalBias,
+    NorthMode,
+    SouthMode,
+    EastMode,
+    WestMode
+}
+
 internal static class MazeBuilders
 {
     
+    public const TreeGrowingMode DefaultMode = TreeGrowingMode.VerticalBias;
+
     //Snakes back and forth till the end. Fully connected.
     public static void BuildSnakePassage(Maze m)
     {
@@ -119,6 +135,37 @@ internal static class MazeBuilders
             visited.Add(target);
         }
     }
+
+    public static void TreeGrowing(Maze m, TreeGrowingMode mode = DefaultMode)
+    {
+        SetRandomExitsVertical(m);
+
+        var visited = new HashSet<Cell>();
+        var frontier = new List<Cell>();
+
+        var startingCell = m.GetRandomCell();
+        frontier.Add(startingCell);
+        visited.Add(startingCell);
+
+        while (frontier.Count > 0)
+        {
+            var frontierIndex = SelectFrontierIndex(frontier.Count, mode);
+            var target = frontier[frontierIndex];
+            var options = GetAdjacentCells(m, target).Where(c => !visited.Contains(c)).ToList();
+
+            if (options.Count == 0)
+            {
+                frontier.RemoveAt(frontierIndex);
+                continue;
+            }
+
+            var next = SelectTreeGrowingNextCell(m, target, options, mode);
+            m.Connect(target, next);
+
+            visited.Add(next);
+            frontier.Add(next);
+        }
+    }
     #region Helper Methods
     public static void SetStandardExits(Maze m)
     {
@@ -190,5 +237,102 @@ internal static class MazeBuilders
         }
         throw new InvalidOperationException($"Cell ({cell.X}, {cell.Y}) is not in any group.");
     }
+
+    private static int SelectFrontierIndex(int frontierCount, TreeGrowingMode mode)
+    {
+        return mode switch
+        {
+            TreeGrowingMode.NewestCell or TreeGrowingMode.HorizontalBias or TreeGrowingMode.VerticalBias => frontierCount - 1,
+            TreeGrowingMode.OldestCell => 0,
+            _ => Random.Shared.Next(frontierCount)
+        };
+    }
+
+    private static Cell SelectTreeGrowingNextCell(Maze maze, Cell from, List<Cell> options, TreeGrowingMode mode)
+    {
+        return mode switch
+        {
+            TreeGrowingMode.HorizontalBias => WeightedDirectionChoice(maze, from, options, horizontalWeight: 4, verticalWeight: 1),
+            TreeGrowingMode.VerticalBias => WeightedDirectionChoice(maze, from, options, horizontalWeight: 1, verticalWeight: 4),
+            TreeGrowingMode.NorthMode => WeightedDirectionChoiceFunc(maze, from, options, BuildDirectionPrefFunc(Direction.North)),
+            TreeGrowingMode.SouthMode => WeightedDirectionChoiceFunc(maze, from, options, BuildDirectionPrefFunc(Direction.South)),
+            TreeGrowingMode.EastMode => WeightedDirectionChoiceFunc(maze, from, options, BuildDirectionPrefFunc(Direction.East)),
+            TreeGrowingMode.WestMode => WeightedDirectionChoiceFunc(maze, from, options, BuildDirectionPrefFunc(Direction.West)),
+            _ => options[Random.Shared.Next(options.Count)]
+        };
+    }
+
+    private static Cell WeightedDirectionChoice(Maze maze, Cell from, List<Cell> options, int horizontalWeight, int verticalWeight)
+    {
+        var weightedOptions = new List<(Cell Cell, int Weight)>();
+        var totalWeight = 0;
+
+        foreach (var option in options)
+        {
+            var direction = maze.GetDirectionTo(from, option);
+            var isHorizontal = direction is Direction.East or Direction.West;
+            var weight = isHorizontal ? horizontalWeight : verticalWeight;
+            weightedOptions.Add((option, weight));
+            totalWeight += weight;
+        }
+
+        var pick = Random.Shared.Next(totalWeight);
+        var cumulativeWeight = 0;
+        foreach (var (cell, weight) in weightedOptions)
+        {
+            cumulativeWeight += weight;
+            if (pick < cumulativeWeight)
+            {
+                return cell;
+            }
+        }
+
+        return weightedOptions[^1].Cell;
+    }
+
+    private static Cell WeightedDirectionChoiceFunc(Maze maze, Cell from, List<Cell> options, Func<Cell, Cell, int> weightFunc)
+    {
+        var weightedOptions = new List<(Cell Cell, int Weight)>();
+        var totalWeight = 0;
+
+        foreach (var option in options)
+        {
+            var optionsWeight = weightFunc(from, option);
+           
+            weightedOptions.Add((option, optionsWeight));
+            totalWeight += optionsWeight;
+        }
+
+        var pick = Random.Shared.Next(totalWeight);
+        var cumulativeWeight = 0;
+        foreach (var (cell, weight) in weightedOptions)
+        {
+            cumulativeWeight += weight;
+            if (pick < cumulativeWeight)
+            {
+                return cell;
+            }
+        }
+
+        return weightedOptions[^1].Cell;
+    }
+
+    private static Func<Cell, Cell, int> BuildDirectionPrefFunc(Direction preferredDirection, int preferredWeight = 4, int otherWeight = 1)
+    {
+        return (from, to) =>
+        {
+            var weight = preferredDirection switch
+            {
+                Direction.North => to.Y < from.Y ? preferredWeight : otherWeight,
+                Direction.East => to.X > from.X ? preferredWeight : otherWeight,
+                Direction.South => to.Y > from.Y ? preferredWeight : otherWeight,
+                Direction.West => to.X < from.X ? preferredWeight : otherWeight,
+                _ => throw new ArgumentOutOfRangeException(nameof(preferredDirection), preferredDirection, null),
+            };
+            return weight;
+        };
+    }
+
+
     #endregion
 }

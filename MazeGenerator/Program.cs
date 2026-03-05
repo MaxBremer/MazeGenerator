@@ -2,8 +2,8 @@ namespace MazeGenerator;
 
 internal class Program
 {
-    private const int DefaultWidth = 8;
-    private const int DefaultHeight = 5;
+    private const int DefaultWidth = 25;
+    private const int DefaultHeight = 15;
 
     static void Main(string[] args)
     {
@@ -11,7 +11,7 @@ internal class Program
         var height = ParseArgument(args, 1, DefaultHeight);
 
         var maze = new Maze(width, height);
-        MazeBuilders.Prim(maze);
+        MazeBuilders.TreeGrowing(maze, TreeGrowingMode.SouthMode);
 
         Console.WriteLine($"Maze ({width} x {height})");
         Console.WriteLine(MazeAsciiRenderer.Render(maze));
